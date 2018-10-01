@@ -1,5 +1,124 @@
 ## 5.1.0 (current)
 
+TBD
+
+## 5.0.6 (2018-09-14)
+
+#### Bugs
+
+* Fix ZonedDateTime adapter
+* Fix encrypted field migration
+* Fix dummy values from field editor missing in context
+* Fix dummy fields issues in relational field editor
+* Fix homeAction field in User m2o editor
+* Fix full send in message details
+* Fix dotted fields in field editor causing form dirty
+* Fix onNew with save action
+* Fix sidebar style conflict issue with field editor
+* Fix contextual custom field with hidden=true
+* Fix xml view hot reload
+* Fix onSave/onLoad actions on custom models
+* Fix view toolbar visibility on side change
+* Fix translation popup for multiline text fields
+* Fix unnecessary fetch request for dummy fields
+* Fix scroll position issue on grid view when switching views
+
+#### Enhancements
+
+* Order followers with their namecolum
+* Open the Inbox mail view instead of the unread mail view
+* Prevent sorting on dummy fields
+* Improve modern theme
+* Terminate pending actions if view is switched
+* Reset form view when switched over with browser back action
+* Do not load record in form view if view is switched
+* Do not add grid/form views when opening view with action
+
+#### Others
+
+* Adopt new style guide (google java format, two spaces for indentation)
+
+## 5.0.5 (2018-08-03)
+
+#### Bugs
+
+* Fix advance search popup not hiding on navbar click
+* Fix issue with custom filter sharing
+* Fix translations
+* Fix selection widget issue when value has html escape values
+* Fix validation issue on date widget
+* Fix form layout issue
+* Fix extra scrollbar with html view
+* Fix route change issue with html view
+* Fix tab refresh issue on tree view
+* Fix class path scanner issue with duplicate classes from bootstrap loader
+
+#### Enhancements
+
+* Add support for domain filter blacklist pattern
+
+  ```
+  domain.blacklist.pattern = (\\(\\s*SELECT\\s+)|some_function
+  ```
+
+  The old `domain.allow.sub-select` settings is removed in favor of this one.
+
+## 5.0.4 (2018-07-10)
+
+#### Bugs
+
+* Fix form layout regressions
+* Revert fix for conditional expressions on fields on editable grid
+
+## 5.0.3 (2018-07-09)
+
+#### Enhancements
+
+* Ref-select widget should not allow editing record
+* Panel header is now clickable if canCollapse is true
+* Improve form layout
+* Improve modern theme
+* Improve kanban design/UX
+* Add encryption support on large text fields
+* Bring back LDAP and CAS integration
+* Change `X-References` to `References` header in email message
+
+#### Bugs
+
+* Fix selection popup record ordering issue
+* Fix conditional expressions on fields on editable grid
+* Fix requiredIf condition issue
+* Fix group maping from LDAP issue
+* Fix advance search input issue
+* Fix JavaEL expression issue
+* Fix grid widget grouping issue on hidden column
+* Fix NPE when trying to delete non-existent record
+* Fix all day event issue in calendar view
+* Fix resource leak when generating report pdf
+
+## 5.0.2 (2018-06-20)
+
+#### Enhancements
+
+* Add support to disallow sub-select in domain filters with `domain.allow.sub-select = false`
+
+#### Bugs
+
+* Fix tag select widget issue on firefox
+* Fix checkbox field in editable grid
+
+## 5.0.1 (2018-06-18)
+
+#### Bugs
+
+* Fix editable grid cell focus issue
+* Fix editable o2m item remove issue
+* Fix widget attribute reset issue
+* Fix kanban view missing values issue after card move
+* Fix bulk update/delete issue with MySQL
+* Fix conditional permissions with empty params value
+* Fix conditional permissions not checked against database values
+
 ## 5.0.0 (2018-06-11)
 
 #### New Features

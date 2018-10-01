@@ -17,6 +17,8 @@
  */
 package com.axelor.auth;
 
+import com.axelor.auth.db.Group;
+import com.axelor.auth.db.User;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -31,71 +33,89 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.axelor.auth.db.Group;
-import com.axelor.auth.db.User;
-
 public class AuthRealm extends AuthorizingRealm {
 
-	private static Logger log = LoggerFactory.getLogger(AuthRealm.class);
+  private static Logger log = LoggerFactory.getLogger(AuthRealm.class);
 
-	public static class AuthMatcher extends PasswordMatcher {
+  public static class AuthMatcher extends PasswordMatcher {
 
-		@Override
-		public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
+    @Override
+    public boolean doCredentialsMatch(AuthenticationToken token, AuthenticationInfo info) {
 
-			//TODO: remove plain text match in final version
-			Object plain = getSubmittedPassword(token);
-			Object saved = getStoredPassword(info);
-			AuthService service = AuthService.getInstance();
+      // TODO: remove plain text match in final version
+      Object plain = getSubmittedPassword(token);
+      Object saved = getStoredPassword(info);
+      AuthService service = AuthService.getInstance();
 
-			if (plain instanceof char[]) {
-				plain = new String((char[]) plain);
-			}
+      if (plain instanceof char[]) {
+        plain = new String((char[]) plain);
+      }
 
-			if (service.match((String) plain, (String) saved) || super.doCredentialsMatch(token, info)) {
-				return true;
-			}
-			
-			log.error("Password authentication failed for user: {}", token.getPrincipal());
-			return false;
-		}
-	}
+      try {
+        return service.ldapLogin((String) token.getPrincipal(), (String) plain);
+      } catch (IllegalStateException e) {
+      } catch (AuthenticationException e) {
+        log.error("Password authentication failed for user: {}", token.getPrincipal());
+        return false;
+      }
 
-	private CredentialsMatcher credentialsMatcher = new AuthMatcher();
+      if (service.match((String) plain, (String) saved) || super.doCredentialsMatch(token, info)) {
+        return true;
+      }
 
-	@Override
-	public CredentialsMatcher getCredentialsMatcher() {
-		return credentialsMatcher;
-	}
+      log.error("Password authentication failed for user: {}", token.getPrincipal());
+      return false;
+    }
+  }
 
-	@Override
-	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+  private CredentialsMatcher credentialsMatcher = new AuthMatcher();
 
-		final String code = ((UsernamePasswordToken) token).getUsername();
-		final User user = AuthUtils.getUser(code);
-		if (user == null || !AuthUtils.isActive(user)) {
-			return null;
-		}
+  @Override
+  public CredentialsMatcher getCredentialsMatcher() {
+    return credentialsMatcher;
+  }
 
-		return new SimpleAuthenticationInfo(code, user.getPassword(), getName());
-	}
+  @Override
+  protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
+      throws AuthenticationException {
 
-	@Override
-	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+    final String code = ((UsernamePasswordToken) token).getUsername();
+    final String passwd = new String(((UsernamePasswordToken) token).getPassword());
 
-		final String code = (String) principals.fromRealm(getName()).iterator().next();
-		final User user = AuthUtils.getUser(code);
+    final AuthService service = AuthService.getInstance();
+    if (service.ldapEnabled()) {
+      try {
+        service.ldapLogin(code, passwd);
+      } catch (IllegalStateException e) {
+      } catch (AuthenticationException e) {
+        log.error("LDAP authentication failed for user: {}", code);
+      }
+    }
 
-		if (user == null) {
-			return null;
-		}
+    final User user = AuthUtils.getUser(code);
+    if (user == null || !AuthUtils.isActive(user)) {
+      return null;
+    }
 
-		final SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-		final Group group = user.getGroup();
-		if (group != null) {
-			info.addRole(group.getCode());
-		}
+    return new SimpleAuthenticationInfo(code, user.getPassword(), getName());
+  }
 
-		return info;
-	}
+  @Override
+  protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+
+    final String code = (String) principals.fromRealm(getName()).iterator().next();
+    final User user = AuthUtils.getUser(code);
+
+    if (user == null) {
+      return null;
+    }
+
+    final SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+    final Group group = user.getGroup();
+    if (group != null) {
+      info.addRole(group.getCode());
+    }
+
+    return info;
+  }
 }

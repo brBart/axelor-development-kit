@@ -17,7 +17,7 @@
     </div>
   </div>
   <div class="kanban-view row-fluid" ng-clsss="::schema.css">
-    <div class="kanban-column" ng-class="colSpan" ng-repeat="column in ::columns" ui-kanban-column>
+    <div class="kanban-column" ng-repeat="column in ::columns" ui-kanban-column>
       <h3>{{::column.title}}</h3>
       <div class="input-group" ng-if="::column.canCreate" ng-show="hasPermission('create')">
         <input type="text" class="form-control" ng-model="$parent.newItem">
@@ -40,13 +40,13 @@
         </li>
       </ul>
       <div class="kanban-empty">
-      	<span class="help-block text-center" x-translate>No records found.</span>
+        <span class="help-block text-center" x-translate>No records found.</span>
       </div>
       <div class="kanban-more ng-hide" ng-show="hasMore()">
-      	<a class="btn btn-load-more" tabindex="-1" href="" role="button" ng-click="onMore()">
-      	  <span x-translate>load more</span>
-      	  <i class="fa fa-arrow-right fa-fw"></i>
-      	</a>
+        <a class="btn btn-load-more" tabindex="-1" href="" role="button" ng-click="onMore()">
+          <span x-translate>load more</span>
+          <i class="fa fa-arrow-right fa-fw"></i>
+        </a>
       </div>
     </div>
   </div>

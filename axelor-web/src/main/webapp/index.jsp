@@ -2,7 +2,7 @@
 
     Axelor Business Solutions
 
-    Copyright (C) 2012-2016 Axelor (<http://axelor.com>).
+    Copyright (C) 2005-2018 Axelor (<http://axelor.com>).
 
     This program is free software: you can redistribute it and/or  modify
     it under the terms of the GNU Affero General Public License, version 3,
@@ -33,7 +33,7 @@ AppInfo info = new AppInfo();
 
 String appName = settings.get("application.name", "My App");
 String appDesc = settings.get("application.description", null);
-String appHome = settings.get("application.home", "");
+String appHome = settings.get("application.home", "#/");
 String appLogo = info.getLogo();
 String appStyle = info.getStyle();
 String appAuthor = settings.get("application.author", "");

@@ -1,7 +1,7 @@
 /**
  * Axelor Business Solutions
  *
- * Copyright (C) 2005-2017 Axelor (<http://axelor.com>).
+ * Copyright (C) 2005-2018 Axelor (<http://axelor.com>).
  *
  * This program is free software: you can redistribute it and/or  modify
  * it under the terms of the GNU Affero General Public License, version 3,
@@ -18,11 +18,11 @@
 @import url('../blue-simple/theme.css');
 
 [data-name="menu-admin"] .nav-icon {
-	background-color: #E03997;
+  background-color: #E03997;
 }
 
 .panel, .dashlet {
-	border: 1px solid #2185D0;
+  border: 1px solid #2185D0;
 }
 .panel .panel-header,
 .dashlet .dashlet-header {
@@ -41,11 +41,11 @@
 
 .panel .panel-title, .dashlet .dashlet-title,
 .dashboard .dashlet-pager, .dashboard .dashlet-buttons > a, .dashboard .dashlet-pager > a {
-	color: #F9FAFB;
+  color: #F9FAFB;
 }
 .dashboard .dashlet-pager > a.disabled {
-	color: #F9FAFB;
-	opacity: .65;
+  color: #F9FAFB;
+  opacity: .65;
 }
 
 .panel-red .panel,

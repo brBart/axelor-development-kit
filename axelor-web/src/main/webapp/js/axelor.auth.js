@@ -1,7 +1,7 @@
 /*
  * Axelor Business Solutions
  *
- * Copyright (C) 2005-2017 Axelor (<http://axelor.com>).
+ * Copyright (C) 2005-2018 Axelor (<http://axelor.com>).
  *
  * This program is free software: you can redistribute it and/or  modify
  * it under the terms of the GNU Affero General Public License, version 3,
@@ -82,6 +82,10 @@ angular.module('axelor.auth', []).provider('authService', function() {
             $rootScope.$broadcast('event:auth-loginRequired', response.status);
           }
           return deferred.promise;
+        }
+        // redirect to the CAS login page
+        if (response.status === 302 || response.status === 307) {
+          window.location.reload();
         }
         // otherwise
         return $q.reject(response);

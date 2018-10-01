@@ -17,97 +17,132 @@
  */
 package com.axelor.gradle.support;
 
-import java.io.File;
-import java.util.Calendar;
-
-import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileTree;
-import org.gradle.api.logging.LogLevel;
-import org.gradle.api.plugins.ExtensionAware;
-import org.gradle.api.plugins.ExtraPropertiesExtension;
-
-import com.axelor.gradle.AxelorPlugin;
+import com.axelor.common.FileUtils;
 import com.axelor.gradle.tasks.GenerateCode;
-
+import groovy.text.SimpleTemplateEngine;
+import groovy.text.TemplateEngine;
+import java.io.File;
+import java.io.StringWriter;
+import java.util.Calendar;
+import java.util.Map;
 import nl.javadude.gradle.plugins.license.License;
 import nl.javadude.gradle.plugins.license.LicenseExtension;
 import nl.javadude.gradle.plugins.license.LicensePlugin;
+import org.gradle.api.GradleException;
+import org.gradle.api.Project;
+import org.gradle.api.plugins.ExtensionAware;
+import org.gradle.api.plugins.ExtraPropertiesExtension;
 
 public class LicenseSupport extends AbstractSupport {
 
-	private File findHeaderFile(Project project) {
-		final String[] paths = {
-			".",
-			"..",
-			project.getRootDir().getPath(),
-			project.getRootDir() + "/src/license"
-		};
-		for (String path : paths) {
-			final File file = project.file(path + "/header.txt");
-			if (file.exists()) {
-				return file;
-			}
-		}
-		return project.file("src/license/header.txt");
-	}
+  private String headerText;
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public void apply(Project project) {
-		final File header = findHeaderFile(project);
-		project.getPlugins().apply(LicensePlugin.class);
-		
-		project.getTasks().create("licenseFormatGenerated", License.class, task -> {
-			final ConfigurableFileTree source = project.fileTree(GenerateCode.getJavaOutputDir(project));
-			source.include("**/*.java");
-			source.include("**/*.groovy");
-			if (AxelorPlugin.GRADLE_VERSION_3_X) {
-				task.setSource((Object) source);
-			}
-			task.getLogging().setLevel(LogLevel.QUIET);
-			task.onlyIf(spec -> header != null && header.exists());
-		});
-		
-		// format generated code with license header
-		project.getTasks().withType(GenerateCode.class).all(task -> task.finalizedBy("licenseFormatGenerated"));
+  private File findHeaderFile(Project project) {
+    final String[] paths = {
+      ".", "..", project.getRootDir().getPath(), project.getRootDir() + "/src/license"
+    };
+    for (String path : paths) {
+      final File file = project.file(path + "/header.txt");
+      if (file.exists()) {
+        return file;
+      }
+    }
+    return project.file("src/license/header.txt");
+  }
 
-		final LicenseExtension license = project.getExtensions().getByType(LicenseExtension.class);
+  private String getLicenseText(Project project, Map<String, Object> props) {
+    final File licenseFile = findHeaderFile(project);
+    final StringWriter writer = new StringWriter();
+    final TemplateEngine engine = new SimpleTemplateEngine();
+    try {
+      engine.createTemplate(licenseFile).make(props).writeTo(writer);
+    } catch (Exception e) {
+      throw new GradleException(e.getMessage(), e);
+    }
+    String text = writer.toString().replaceAll("\n", "\n * ").trim();
+    return "/*\n * " + text + "/\n";
+  }
 
-		license.setHeader(header);
-		license.setIgnoreFailures(true);
+  @Override
+  public void apply(Project project) {
+    final File header = findHeaderFile(project);
+    project.getPlugins().apply(LicensePlugin.class);
 
-		license.mapping("java", "SLASHSTAR_STYLE");
-		
-		license.include("**/*.java");
-		license.include("**/*.groovy");
-		license.include("**/*.scala");
-		license.include("**/*.js");
-		license.include("**/*.css");
-		
-		license.exclude("**/LICENSE");
-		license.exclude("**/LICENSE.md");
-		license.exclude("**/README");
-		license.exclude("**/README.md");
-		license.exclude("**/*.properties");
-		license.exclude("**/*.txt");
-		license.exclude("**/*.json");
-		
-		license.exclude("**/data-init/**");
-		license.exclude("**/data-demo/**");
-		license.exclude("**/resources/**");
-		license.exclude("**/webapp/lib/**");
-		license.exclude("**/webapp/WEB-INF/web.xml");
+    final LicenseExtension license = project.getExtensions().getByType(LicenseExtension.class);
+    final ExtraPropertiesExtension ext =
+        ((ExtensionAware) license).getExtensions().getExtraProperties();
 
-		final ExtraPropertiesExtension ext = ((ExtensionAware) license).getExtensions().getExtraProperties();
+    ext.set("product", "Axelor Business Solutions");
+    ext.set("inception", "2005");
+    ext.set("year", Calendar.getInstance().get(Calendar.YEAR));
+    ext.set("owner", "Axelor");
+    ext.set("website", "http://axelor.com");
 
-		ext.set("product", "Axelor Business Solutions");
-		ext.set("inception", "2005");
-		ext.set("year", Calendar.getInstance().get(Calendar.YEAR));
-		ext.set("owner", "Axelor");
-		ext.set("website", "http://axelor.com");
-		
-		project.afterEvaluate(p -> {
-			project.getTasks().withType(License.class).all(task -> task.onlyIf(spec -> header != null && header.exists()));
-		});
-	}
+    // format generated code with license header
+    project
+        .getTasks()
+        .withType(GenerateCode.class)
+        .all(
+            task -> {
+              task.setFormatter(
+                  text -> {
+                    if (headerText == null) {
+                      headerText = getLicenseText(project, ext.getProperties());
+                    }
+                    return headerText + text;
+                  });
+            });
+
+    license.setHeader(header);
+    license.setIgnoreFailures(true);
+
+    license.mapping("java", "SLASHSTAR_STYLE");
+
+    license.include("**/*.java");
+    license.include("**/*.groovy");
+    license.include("**/*.scala");
+    license.include("**/*.js");
+    license.include("**/*.css");
+    license.include("**/*.jsp");
+
+    license.exclude("**/LICENSE");
+    license.exclude("**/LICENSE.md");
+    license.exclude("**/README");
+    license.exclude("**/README.md");
+    license.exclude("**/*.properties");
+    license.exclude("**/*.txt");
+    license.exclude("**/*.json");
+
+    license.exclude("**/src-gen/**");
+    license.exclude("**/data-init/**");
+    license.exclude("**/data-demo/**");
+    license.exclude("**/resources/**");
+    license.exclude("**/webapp/lib/**");
+    license.exclude("**/webapp/lib/**");
+    license.exclude("**/webapp/dist/**");
+    license.exclude("**/webapp/node_modules/**");
+    license.exclude("**/webapp/WEB-INF/web.xml");
+
+    final File webapp = FileUtils.getFile(project.getProjectDir(), "src", "main", "webapp");
+
+    project.afterEvaluate(
+        p -> {
+          project
+              .getTasks()
+              .withType(License.class)
+              .all(
+                  task -> {
+                    task.onlyIf(spec -> header != null && header.exists());
+                    task.source(
+                        project.fileTree(
+                            webapp,
+                            tree -> {
+                              tree.exclude("lib/**");
+                              tree.exclude("dist/**");
+                              tree.exclude("node_modules/**");
+                              tree.exclude("WEB-INF/web.xml");
+                            }));
+                  });
+        });
+  }
 }
