@@ -17,46 +17,9 @@
  */
 package com.axelor.event;
 
-import java.lang.annotation.Annotation;
+import com.axelor.db.Model;
 
-public interface EntityEvent<T> {
+public interface EntityEvent {
 
-  public static final After AFTER =
-      new After() {
-        @Override
-        public Class<? extends Annotation> annotationType() {
-          return After.class;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-          return obj instanceof After;
-        };
-
-        @Override
-        public int hashCode() {
-          return 0;
-        };
-      };
-
-  public static final Before BEFORE =
-      new Before() {
-
-        @Override
-        public Class<? extends Annotation> annotationType() {
-          return Before.class;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-          return obj instanceof Before;
-        };
-
-        @Override
-        public int hashCode() {
-          return 0;
-        };
-      };
-
-  T getEntity();
+  Model getEntity();
 }

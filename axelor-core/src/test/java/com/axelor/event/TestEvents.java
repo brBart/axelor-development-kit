@@ -17,7 +17,6 @@
  */
 package com.axelor.event;
 
-import com.axelor.db.Model;
 import com.axelor.test.GuiceModules;
 import com.axelor.test.GuiceRunner;
 import com.axelor.test.db.Contact;
@@ -30,27 +29,21 @@ import org.junit.runner.RunWith;
 @GuiceModules({EventModule.class, TestModule.class})
 public class TestEvents {
 
-  public void onSaveAny(@Observes SaveEvent<?> event) {
-    System.out.println("SaveEvent<?>");
+  public void onBeforeSaveAny(@Observes @Priority(1) BeforeSave event) {
+    System.out.println("BeforeSave");
   }
 
-  public void onSaveModel(@Observes SaveEvent<? extends Model> event) {
-    System.out.println("SaveEvent<? extends Model>");
+  public void onBeforeSaveContact(
+      @Observes @Priority(2) @EntityType(Contact.class) BeforeSave event) {
+    System.out.println("BeforeSave contact");
   }
 
-  public void onSaveContact(@Observes SaveEvent<Contact> event) {
-    System.out.println("SaveEvent<Contact>");
+  public void onBeforeSaveInvoice(
+      @Observes @Priority(2) @EntityType(Invoice.class) BeforeSave event) {
+    System.out.println("BeforeSave invoice");
   }
 
-  public void onSaveInvoice(@Observes SaveEvent<Invoice> event) {
-    System.out.println("SaveEvent<Invoice>");
-  }
-
-  @Inject private Event<SaveEvent<Contact>> contactEvent;
-  @Inject private Event<SaveEvent<Invoice>> invoiceEvent;
-
-  @Inject private Event<SaveEvent<? extends Model>> modelEvent;
-  @Inject private Event<SaveEvent<?>> anyEvent;
+  @Inject private Event<BeforeSave> beforeSave;
 
   @Test
   public void test() {
@@ -59,19 +52,11 @@ public class TestEvents {
     Invoice invoice = new Invoice();
 
     System.out.println("fire contact");
-    contactEvent.fire(new SaveEvent<>(contact));
+    beforeSave.select(EntityTypes.get(Contact.class)).fire(new BeforeSave(contact));
     System.out.println();
 
     System.out.println("fire invoice");
-    invoiceEvent.fire(new SaveEvent<>(invoice));
-    System.out.println();
-
-    System.out.println("fire ? extends model");
-    modelEvent.fire(new SaveEvent<>(invoice));
-    System.out.println();
-
-    System.out.println("fire ?");
-    anyEvent.fire(new SaveEvent<>(invoice));
+    beforeSave.select(EntityTypes.get(Invoice.class)).fire(new BeforeSave(invoice));
     System.out.println();
   }
 }

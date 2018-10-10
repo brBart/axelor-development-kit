@@ -17,18 +17,18 @@
  */
 package com.axelor.event;
 
-import com.axelor.db.Model;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-public class SaveEvent<T extends Model> implements EntityEvent<T> {
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import javax.inject.Qualifier;
 
-  private T entity;
-
-  public SaveEvent(T entity) {
-    this.entity = entity;
-  }
-
-  @Override
-  public T getEntity() {
-    return entity;
-  }
+@Qualifier
+@Target({PARAMETER})
+@Retention(RUNTIME)
+@Documented
+public @interface EntityType {
+  Class<?> value();
 }
