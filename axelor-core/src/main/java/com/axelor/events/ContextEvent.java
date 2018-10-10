@@ -17,16 +17,9 @@
  */
 package com.axelor.events;
 
-import com.axelor.db.Model;
 import com.axelor.rpc.Context;
 
-public class AfterSave extends AbstractEntityEvent {
+public interface ContextEvent {
 
-  public AfterSave(Model entity) {
-    super(entity);
-  }
-
-  public AfterSave(Model entity, Context context) {
-    super(entity, context);
-  }
+  Context getContext();
 }

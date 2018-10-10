@@ -19,7 +19,7 @@ package com.axelor.events;
 
 import com.axelor.db.Model;
 
-public interface EntityEvent {
+public interface EntityEvent extends ContextEvent {
 
   Model getEntity();
 }

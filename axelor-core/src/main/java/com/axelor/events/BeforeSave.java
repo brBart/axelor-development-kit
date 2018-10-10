@@ -18,17 +18,15 @@
 package com.axelor.events;
 
 import com.axelor.db.Model;
+import com.axelor.rpc.Context;
 
-public class BeforeSave implements EntityEvent {
-
-  private Model entity;
+public class BeforeSave extends AbstractEntityEvent {
 
   public BeforeSave(Model entity) {
-    this.entity = entity;
+    super(entity);
   }
 
-  @Override
-  public Model getEntity() {
-    return entity;
+  public BeforeSave(Model entity, Context context) {
+    super(entity, context);
   }
 }

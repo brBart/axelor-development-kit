@@ -17,16 +17,34 @@
  */
 package com.axelor.events;
 
+import com.axelor.db.EntityHelper;
 import com.axelor.db.Model;
 import com.axelor.rpc.Context;
 
-public class AfterSave extends AbstractEntityEvent {
+public abstract class AbstractEntityEvent implements EntityEvent {
 
-  public AfterSave(Model entity) {
-    super(entity);
+  private final Model entity;
+  private Context context;
+
+  public AbstractEntityEvent(Model entity) {
+    this(entity, null);
   }
 
-  public AfterSave(Model entity, Context context) {
-    super(entity, context);
+  public AbstractEntityEvent(Model entity, Context context) {
+    this.entity = entity;
+    this.context = context;
+  }
+
+  @Override
+  public Model getEntity() {
+    return entity;
+  }
+
+  @Override
+  public Context getContext() {
+    if (context == null) {
+      context = new Context(entity.getId(), EntityHelper.getEntityClass(entity));
+    }
+    return context;
   }
 }
