@@ -87,6 +87,9 @@ class Observer implements Comparable<Observer> {
 
   public boolean hasQualifiers(Set<Annotation> qualifiers) {
     Objects.requireNonNull(qualifiers, "qualifiers cannot be null");
+    if (this.qualifiers.isEmpty()) {
+      return true;
+    }
     if (qualifiers.isEmpty() && !this.qualifiers.isEmpty()) {
       return false;
     }
