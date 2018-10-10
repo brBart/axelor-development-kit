@@ -17,6 +17,9 @@
  */
 package com.axelor.event;
 
+import com.axelor.events.BeforeSave;
+import com.axelor.events.qualifiers.EntityType;
+import com.axelor.events.qualifiers.EntityTypes;
 import com.axelor.test.GuiceModules;
 import com.axelor.test.GuiceRunner;
 import com.axelor.test.db.Contact;

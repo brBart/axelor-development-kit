@@ -15,15 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.axelor.event;
+package com.axelor.events;
 
 import com.axelor.db.Model;
 
-public class BeforeSave implements EntityEvent {
+public class AfterSave implements EntityEvent {
 
   private Model entity;
 
-  public BeforeSave(Model entity) {
+  public AfterSave(Model entity) {
     this.entity = entity;
   }
 

@@ -15,20 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.axelor.event;
+package com.axelor.events;
 
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import com.axelor.db.Model;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-import javax.inject.Qualifier;
+public class BeforeSave implements EntityEvent {
 
-@Qualifier
-@Target({PARAMETER})
-@Retention(RUNTIME)
-@Documented
-public @interface EntityType {
-  Class<?> value();
+  private Model entity;
+
+  public BeforeSave(Model entity) {
+    this.entity = entity;
+  }
+
+  @Override
+  public Model getEntity() {
+    return entity;
+  }
 }
