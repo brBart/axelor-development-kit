@@ -39,6 +39,10 @@ import com.axelor.db.mapper.Mapper;
 import com.axelor.db.mapper.Property;
 import com.axelor.db.mapper.PropertyType;
 import com.axelor.db.search.SearchService;
+import com.axelor.event.Event;
+import com.axelor.events.AfterSave;
+import com.axelor.events.BeforeSave;
+import com.axelor.events.qualifiers.EntityTypes;
 import com.axelor.i18n.I18n;
 import com.axelor.i18n.I18nBundle;
 import com.axelor.i18n.L10n;
@@ -97,6 +101,10 @@ public class Resource<T extends Model> {
   private Provider<JpaSecurity> security;
 
   private Logger LOG = LoggerFactory.getLogger(Resource.class);
+
+  @Inject private Event<BeforeSave> beforeSave;
+
+  @Inject private Event<AfterSave> afterSave;
 
   private Resource(Class<T> model, Provider<JpaSecurity> security) {
     this.model = model;
@@ -874,6 +882,9 @@ public class Resource<T extends Model> {
         security.get().check(JpaSecurity.CAN_WRITE, model, id);
       }
 
+      // fire before save event
+      beforeSave.select(EntityTypes.get(model)).fire(new BeforeSave(bean, request.getContext()));
+
       // if user, update password
       if (bean instanceof User) {
         changeUserPassword((User) bean, (Map) record);
@@ -893,6 +904,9 @@ public class Resource<T extends Model> {
       }
 
       data.add(repository.populate(toMap(bean, names), request.getContext()));
+
+      // fire after save event
+      afterSave.select(EntityTypes.get(model)).fire(new AfterSave(bean, request.getContext()));
     }
 
     response.setData(data);
